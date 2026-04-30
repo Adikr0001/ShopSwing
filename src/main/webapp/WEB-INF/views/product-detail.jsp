@@ -41,31 +41,11 @@
         </div>
 
         <div class="fade-in" style="display:grid; grid-template-columns: 300px 1fr; gap:1.5rem;">
-            <!-- Left: Category icon area -->
-            <div style="background:rgba(79,140,255,0.08); border:1px solid rgba(79,140,255,0.2); border-radius:16px; display:flex; align-items:center; justify-content:center; min-height:350px;">
-                <c:choose>
-                    <c:when test="${product.categoryName == 'Electronics'}">
-                        <span style="font-size:5rem;">&#128241;</span>
-                    </c:when>
-                    <c:when test="${product.categoryName == 'Clothing'}">
-                        <span style="font-size:5rem;">&#128085;</span>
-                    </c:when>
-                    <c:when test="${product.categoryName == 'Books'}">
-                        <span style="font-size:5rem;">&#128218;</span>
-                    </c:when>
-                    <c:when test="${product.categoryName == 'Home & Garden'}">
-                        <span style="font-size:5rem;">&#127968;</span>
-                    </c:when>
-                    <c:when test="${product.categoryName == 'Sports'}">
-                        <span style="font-size:5rem;">&#127947;</span>
-                    </c:when>
-                    <c:when test="${product.categoryName == 'Beauty'}">
-                        <span style="font-size:5rem;">&#128132;</span>
-                    </c:when>
-                    <c:otherwise>
-                        <span style="font-size:5rem;">&#128722;</span>
-                    </c:otherwise>
-                </c:choose>
+            <!-- Left: Product Image Area -->
+            <div class="product-image-large">
+                <img src="${pageContext.request.contextPath}/${product.imageUrl}" 
+                     alt="${product.name}"
+                     onerror="this.src='https://placehold.co/600x600/1e293b/white?text=${product.name}';">
             </div>
 
             <!-- Right: Product details -->

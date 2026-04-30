@@ -323,6 +323,45 @@ select.form-control {
     gap: 1.2rem;
 }
 
+.product-image-container {
+    width: 100%;
+    height: 180px;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.product-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.card:hover .product-image-container img {
+    transform: scale(1.08);
+}
+
+.product-image-large {
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+    overflow: hidden;
+}
+
+.product-image-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+}
+
 .product-card .product-info { padding: 1rem 1.2rem 0.6rem; }
 .product-card .product-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.15rem; }
 .product-card .product-brand { font-size: 0.8rem; color: var(--muted); }

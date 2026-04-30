@@ -117,6 +117,13 @@
                                         <span style="font-size:0.75rem;color:var(--subtext);">#${p.id}</span>
                                     </div>
 
+                                    <!-- Product Image -->
+                                    <div class="product-image-container">
+                                        <img src="${pageContext.request.contextPath}/${p.imageUrl}" 
+                                             alt="${p.name}" 
+                                             onerror="this.src='https://placehold.co/400x300/1e293b/white?text=${p.name}';">
+                                    </div>
+
                                     <!-- Info -->
                                     <div class="product-info">
                                         <div class="product-name">${p.name}</div>

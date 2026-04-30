@@ -172,7 +172,12 @@ INSERT INTO products (id, name, category_id, price, description, brand, rating, 
 
 -- Beauty (category_id = 6)
 (124, 'Maybelline Fit Me Foundation', 6, 599.00, 'Natural finish, SPF 18, 40 shades available', 'Maybelline', 4.4, 300, 'images/maybelline.jpg'),
-(125, 'Cetaphil Gentle Face Wash', 6, 385.00, 'Soap-free, non-comedogenic, for sensitive skin', 'Cetaphil', 4.6, 250, 'images/cetaphil.jpg');
+(125, 'Cetaphil Gentle Face Wash', 6, 385.00, 'Soap-free, non-comedogenic, for sensitive skin', 'Cetaphil', 4.6, 250, 'images/cetaphil.jpg'),
+(126, 'Sony PlayStation 5 Slim', 1, 44990.00, 'Ultra-high speed SSD, integrated I/O, Ray Tracing', 'Sony', 4.9, 15, 'images/ps5.jpg'),
+(127, 'Nintendo Switch OLED', 1, 32990.00, '7-inch OLED screen, wide adjustable stand, wired LAN port', 'Nintendo', 4.8, 20, 'images/switch_oled.jpg'),
+(128, 'Bose QC Ultra Headphones', 1, 35900.00, 'World-class noise cancelling, spatial audio, quiet comfort', 'Bose', 4.7, 40, 'images/bose_qc.jpg'),
+(129, 'Kindle Paperwhite 16GB', 3, 14999.00, '6.8" display, adjustable warm light, up to 10 weeks battery', 'Amazon', 4.8, 100, 'images/kindle.jpg'),
+(130, 'Razer DeathAdder V3 Pro', 1, 14990.00, '63g ultra-lightweight design, 30K optical sensor', 'Razer', 4.9, 50, 'images/razer_mouse.jpg');
 
 
 -- ============================================================
