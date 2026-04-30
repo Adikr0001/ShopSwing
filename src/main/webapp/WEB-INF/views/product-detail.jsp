@@ -80,32 +80,34 @@
                 <h3 style="color:var(--subtext); font-size:0.85rem; margin-bottom:0.3rem;">Description</h3>
                 <p style="color:var(--text); margin-bottom:1.2rem; line-height:1.7;">${product.description}</p>
 
-                <!-- Details Grid -->
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.8rem; margin-bottom:1.5rem;">
+                <!-- Details Grid (Dynamic Specifications) -->
+                <h3 style="color:var(--subtext); font-size:0.85rem; margin-bottom:0.3rem; margin-top:1.5rem;">Specifications</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.8rem; margin-bottom:1.5rem;">
                     <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
                         <div style="font-size:0.75rem;color:var(--muted);">Product ID</div>
                         <div style="font-weight:700;color:var(--text);">#${product.id}</div>
                     </div>
                     <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
-                        <div style="font-size:0.75rem;color:var(--muted);">Brand</div>
-                        <div style="font-weight:700;color:var(--text);">${product.brand}</div>
-                    </div>
-                    <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
                         <div style="font-size:0.75rem;color:var(--muted);">In Stock</div>
                         <div style="font-weight:700;color:${product.stock > 0 ? 'var(--green)' : 'var(--red)'};">${product.stock} units</div>
                     </div>
-                    <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
-                        <div style="font-size:0.75rem;color:var(--muted);">Category</div>
-                        <div style="font-weight:700;color:var(--text);">${product.categoryName}</div>
-                    </div>
-                    <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
-                        <div style="font-size:0.75rem;color:var(--muted);">Delivery</div>
-                        <div style="font-weight:700;color:var(--green);">Free Shipping</div>
-                    </div>
-                    <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
-                        <div style="font-size:0.75rem;color:var(--muted);">Returns</div>
-                        <div style="font-weight:700;color:var(--text);">30-Day Policy</div>
-                    </div>
+                    <c:forEach var="entry" items="${product.specificationsMap}">
+                        <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
+                            <div style="font-size:0.75rem;color:var(--muted);">${entry.key}</div>
+                            <div style="font-weight:700;color:var(--text);">${entry.value}</div>
+                        </div>
+                    </c:forEach>
+                    <!-- Fallback for base details if no specs -->
+                    <c:if test="${empty product.specificationsMap}">
+                        <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
+                            <div style="font-size:0.75rem;color:var(--muted);">Brand</div>
+                            <div style="font-weight:700;color:var(--text);">${product.brand}</div>
+                        </div>
+                        <div style="background:var(--bg); padding:0.7rem; border-radius:8px;">
+                            <div style="font-size:0.75rem;color:var(--muted);">Category</div>
+                            <div style="font-weight:700;color:var(--text);">${product.categoryName}</div>
+                        </div>
+                    </c:if>
                 </div>
 
                 <!-- Action Buttons -->

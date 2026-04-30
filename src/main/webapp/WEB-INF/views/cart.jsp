@@ -51,18 +51,12 @@
                     <div>
                         <c:forEach var="item" items="${cartItems}">
                             <div class="card fade-in" style="display:flex; align-items:center; padding:1rem 1.2rem; margin-bottom:0.6rem;">
-                                <!-- Category icon -->
-                                <div style="width:50px;height:50px;display:flex;align-items:center;justify-content:center;
-                                            background:var(--accent-dim);border-radius:10px;margin-right:1rem;font-size:1.3rem;flex-shrink:0;">
-                                    <c:choose>
-                                        <c:when test="${item.categoryName == 'Electronics'}">&#128241;</c:when>
-                                        <c:when test="${item.categoryName == 'Clothing'}">&#128085;</c:when>
-                                        <c:when test="${item.categoryName == 'Books'}">&#128218;</c:when>
-                                        <c:when test="${item.categoryName == 'Home & Garden'}">&#127968;</c:when>
-                                        <c:when test="${item.categoryName == 'Sports'}">&#127947;</c:when>
-                                        <c:when test="${item.categoryName == 'Beauty'}">&#128132;</c:when>
-                                        <c:otherwise>&#128722;</c:otherwise>
-                                    </c:choose>
+                                <!-- Product Image -->
+                                <div style="width:60px;height:60px;margin-right:1rem;flex-shrink:0;">
+                                    <img src="${pageContext.request.contextPath}/${item.productImageUrl}" 
+                                         alt="${item.productName}"
+                                         style="width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid var(--border);"
+                                         onerror="this.src='https://placehold.co/100x100/1e293b/white?text=${item.productName}';">
                                 </div>
 
                                 <!-- Product info -->

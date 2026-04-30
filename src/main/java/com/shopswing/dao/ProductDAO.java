@@ -139,7 +139,7 @@ public class ProductDAO {
      * Adds a new product to the database.
      */
     public boolean addProduct(Product p) {
-        String sql = "INSERT INTO products (name, category_id, price, description, brand, rating, stock, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO products (name, category_id, price, description, brand, rating, stock, image_url, specifications) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
@@ -152,6 +152,7 @@ public class ProductDAO {
             ps.setDouble(6, p.getRating());
             ps.setInt(7, p.getStock());
             ps.setString(8, p.getImageUrl());
+            ps.setString(9, p.getSpecifications());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,7 +166,7 @@ public class ProductDAO {
      * Updates an existing product.
      */
     public boolean updateProduct(Product p) {
-        String sql = "UPDATE products SET name=?, category_id=?, price=?, description=?, brand=?, rating=?, stock=?, image_url=? WHERE id=?";
+        String sql = "UPDATE products SET name=?, category_id=?, price=?, description=?, brand=?, rating=?, stock=?, image_url=?, specifications=? WHERE id=?";
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
@@ -178,7 +179,8 @@ public class ProductDAO {
             ps.setDouble(6, p.getRating());
             ps.setInt(7, p.getStock());
             ps.setString(8, p.getImageUrl());
-            ps.setInt(9, p.getId());
+            ps.setString(9, p.getSpecifications());
+            ps.setInt(10, p.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -219,6 +221,7 @@ public class ProductDAO {
         p.setRating(rs.getDouble("rating"));
         p.setStock(rs.getInt("stock"));
         p.setImageUrl(rs.getString("image_url"));
+        p.setSpecifications(rs.getString("specifications"));
         p.setCreatedAt(rs.getTimestamp("created_at"));
         return p;
     }

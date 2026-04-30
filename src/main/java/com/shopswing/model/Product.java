@@ -16,6 +16,7 @@ public class Product {
     private double rating;
     private int stock;
     private String imageUrl;
+    private String specifications; // New field for key-value pairs
     private Timestamp createdAt;
 
     // Default constructor
@@ -24,7 +25,7 @@ public class Product {
     // Full constructor
     public Product(int id, String name, int categoryId, String categoryName,
                    double price, String description, String brand,
-                   double rating, int stock, String imageUrl, Timestamp createdAt) {
+                   double rating, int stock, String imageUrl, String specifications, Timestamp createdAt) {
         this.id = id;
         this.name = name;
         this.categoryId = categoryId;
@@ -35,6 +36,7 @@ public class Product {
         this.rating = rating;
         this.stock = stock;
         this.imageUrl = imageUrl;
+        this.specifications = specifications;
         this.createdAt = createdAt;
     }
 
@@ -69,6 +71,9 @@ public class Product {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
+    public String getSpecifications() { return specifications; }
+    public void setSpecifications(String specifications) { this.specifications = specifications; }
+
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
@@ -84,6 +89,33 @@ public class Product {
      */
     public int getStarCount() {
         return (int) Math.round(rating);
+    }
+
+    /**
+     * Returns a truncated version of the description for the product card.
+     */
+    public String getShortDescription() {
+        if (description == null) return "";
+        if (description.length() <= 80) return description;
+        return description.substring(0, 77) + "...";
+    }
+
+    /**
+     * Parses the specifications string into a Map.
+     * Expects format: "Key: Value | Key2: Value2"
+     */
+    public java.util.Map<String, String> getSpecificationsMap() {
+        java.util.Map<String, String> map = new java.util.LinkedHashMap<>();
+        if (specifications == null || specifications.isEmpty()) return map;
+        
+        String[] pairs = specifications.split("\\|");
+        for (String pair : pairs) {
+            String[] kv = pair.split(":");
+            if (kv.length == 2) {
+                map.put(kv[0].trim(), kv[1].trim());
+            }
+        }
+        return map;
     }
 
     @Override

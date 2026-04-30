@@ -128,6 +128,9 @@
                                     <div class="product-info">
                                         <div class="product-name">${p.name}</div>
                                         <div class="product-brand">${p.brand}</div>
+                                        <div class="product-short-desc" style="font-size:0.8rem;color:var(--subtext);margin:0.4rem 0;height:2.4rem;overflow:hidden;">
+                                            ${p.shortDescription}
+                                        </div>
                                         <div class="stars" style="margin:0.3rem 0;">
                                             <c:forEach begin="1" end="5" var="i">
                                                 <span class="star ${i <= p.starCount ? 'filled' : ''}">&#9733;</span>

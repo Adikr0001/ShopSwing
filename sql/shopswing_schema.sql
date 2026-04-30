@@ -67,6 +67,7 @@ CREATE TABLE products (
     rating DECIMAL(2, 1) DEFAULT 0.0,
     stock INT DEFAULT 0,
     image_url VARCHAR(500),
+    specifications TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES categories(id)
         ON DELETE RESTRICT ON UPDATE CASCADE
