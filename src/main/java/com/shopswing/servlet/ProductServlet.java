@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -46,10 +47,13 @@ public class ProductServlet extends HttpServlet {
             products = productDAO.getProductsByCategory(category);
         } else if (search != null && !search.isEmpty()) {
             products = productDAO.searchProducts(search);
-        } else if (sort != null && !sort.isEmpty()) {
-            products = productDAO.getAllProductsSorted(sort);
         } else {
             products = productDAO.getAllProducts();
+        }
+
+        // Apply sort after filtering so sort works with category/search combinations.
+        if (sort != null && !sort.isEmpty()) {
+            applySort(products, sort);
         }
 
         // Fetch all categories for sidebar
@@ -74,5 +78,27 @@ public class ProductServlet extends HttpServlet {
         request.setAttribute("avgPrice", String.format("%,.0f", avgPrice));
 
         request.getRequestDispatcher("/WEB-INF/views/products.jsp").forward(request, response);
+    }
+
+    private void applySort(List<Product> products, String sort) {
+        switch (sort) {
+            case "price_asc":
+                products.sort(Comparator.comparingDouble(Product::getPrice));
+                break;
+            case "price_desc":
+                products.sort(Comparator.comparingDouble(Product::getPrice).reversed());
+                break;
+            case "name_asc":
+                products.sort(Comparator.comparing(Product::getName, String.CASE_INSENSITIVE_ORDER));
+                break;
+            case "name_desc":
+                products.sort(Comparator.comparing(Product::getName, String.CASE_INSENSITIVE_ORDER).reversed());
+                break;
+            case "rating_desc":
+                products.sort(Comparator.comparingDouble(Product::getRating).reversed());
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,7 +54,7 @@
                             <div class="card fade-in" style="display:flex; align-items:center; padding:1rem 1.2rem; margin-bottom:0.6rem;">
                                 <!-- Product Image -->
                                 <div style="width:60px;height:60px;margin-right:1rem;flex-shrink:0;">
-                                    <img src="${pageContext.request.contextPath}/${item.productImageUrl}" 
+                                    <img src="${fn:startsWith(item.productImageUrl, 'http') ? item.productImageUrl : pageContext.request.contextPath.concat('/').concat(item.productImageUrl)}" 
                                          alt="${item.productName}"
                                          style="width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid var(--border);"
                                          onerror="this.src='https://placehold.co/100x100/1e293b/white?text=${item.productName}';">

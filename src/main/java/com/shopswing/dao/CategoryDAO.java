@@ -11,6 +11,7 @@ import java.util.List;
  * Data Access Object for Category operations.
  */
 public class CategoryDAO {
+    private static final List<Category> FALLBACK_CATEGORIES = createFallbackCategories();
 
     /**
      * Returns all categories ordered by name.
@@ -35,7 +36,7 @@ public class CategoryDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
-        return list;
+        return list.isEmpty() ? new ArrayList<>(FALLBACK_CATEGORIES) : list;
     }
 
     /**
@@ -57,6 +58,20 @@ public class CategoryDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
+        for (Category category : FALLBACK_CATEGORIES) {
+            if (category.getId() == id) return category;
+        }
         return null;
+    }
+
+    private static List<Category> createFallbackCategories() {
+        List<Category> categories = new ArrayList<>();
+        categories.add(new Category(1, "Electronics", "Phones, laptops, gadgets"));
+        categories.add(new Category(2, "Clothing", "Fashion and apparel"));
+        categories.add(new Category(3, "Books", "Books and learning"));
+        categories.add(new Category(4, "Home & Garden", "Home essentials"));
+        categories.add(new Category(5, "Sports", "Fitness and outdoor"));
+        categories.add(new Category(6, "Beauty", "Beauty and personal care"));
+        return categories;
     }
 }

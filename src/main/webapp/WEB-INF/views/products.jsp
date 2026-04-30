@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,15 +58,15 @@
             </c:forEach>
 
             <div class="sidebar-header" style="margin-top:1.5rem;">SORT BY PRICE</div>
-            <a href="${pageContext.request.contextPath}/products?sort=price_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}"
+            <a href="${pageContext.request.contextPath}/products?sort=price_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
                class="sidebar-link">Cheapest First</a>
-            <a href="${pageContext.request.contextPath}/products?sort=price_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}"
+            <a href="${pageContext.request.contextPath}/products?sort=price_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
                class="sidebar-link">Premium First</a>
 
             <div class="sidebar-header" style="margin-top:1.5rem;">SORT BY NAME</div>
-            <a href="${pageContext.request.contextPath}/products?sort=name_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}"
+            <a href="${pageContext.request.contextPath}/products?sort=name_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
                class="sidebar-link">Name A → Z</a>
-            <a href="${pageContext.request.contextPath}/products?sort=name_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}"
+            <a href="${pageContext.request.contextPath}/products?sort=name_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
                class="sidebar-link">Name Z → A</a>
 
             <!-- Stats Card -->
@@ -119,7 +120,7 @@
 
                                     <!-- Product Image -->
                                     <div class="product-image-container">
-                                        <img src="${pageContext.request.contextPath}/${p.imageUrl}" 
+                                        <img src="${fn:startsWith(p.imageUrl, 'http') ? p.imageUrl : pageContext.request.contextPath.concat('/').concat(p.imageUrl)}" 
                                              alt="${p.name}" 
                                              onerror="this.src='https://placehold.co/400x300/1e293b/white?text=${p.name}';">
                                     </div>

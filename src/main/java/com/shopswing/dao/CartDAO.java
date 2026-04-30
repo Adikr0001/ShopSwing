@@ -1,16 +1,22 @@
 package com.shopswing.dao;
 
 import com.shopswing.model.CartItem;
+import com.shopswing.model.Product;
 import com.shopswing.utils.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Access Object for Cart operations.
  */
 public class CartDAO {
+    private static final Map<Integer, Map<Integer, Integer>> FALLBACK_CARTS = new ConcurrentHashMap<>();
+    private final ProductDAO productDAO = new ProductDAO();
 
     /**
      * Adds a product to the user's cart. If already in cart, increments quantity.
@@ -27,6 +33,8 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            Map<Integer, Integer> userCart = FALLBACK_CARTS.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
+            userCart.merge(productId, 1, Integer::sum);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -52,6 +60,8 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            Map<Integer, Integer> userCart = FALLBACK_CARTS.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
+            userCart.put(productId, quantity);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -71,6 +81,10 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            Map<Integer, Integer> userCart = FALLBACK_CARTS.get(userId);
+            if (userCart != null) {
+                userCart.remove(productId);
+            }
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -113,7 +127,8 @@ public class CartDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
-        return list;
+        if (!list.isEmpty()) return list;
+        return getFallbackCartItems(userId);
     }
 
     /**
@@ -133,7 +148,12 @@ public class CartDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
-        return 0;
+        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
+        int total = 0;
+        for (Integer qty : userCart.values()) {
+            total += qty;
+        }
+        return total;
     }
 
     /**
@@ -149,6 +169,7 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            FALLBACK_CARTS.remove(userId);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -173,6 +194,29 @@ public class CartDAO {
         } finally {
             DBConnection.closeConnection(conn);
         }
-        return 0;
+        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
+        return userCart.getOrDefault(productId, 0);
+    }
+
+    private List<CartItem> getFallbackCartItems(int userId) {
+        List<CartItem> list = new ArrayList<>();
+        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
+        for (Map.Entry<Integer, Integer> entry : userCart.entrySet()) {
+            Product p = productDAO.getProductById(entry.getKey());
+            if (p == null) continue;
+            CartItem item = new CartItem();
+            item.setId(0);
+            item.setUserId(userId);
+            item.setProductId(p.getId());
+            item.setQuantity(entry.getValue());
+            item.setAddedAt(new Timestamp(System.currentTimeMillis()));
+            item.setProductName(p.getName());
+            item.setProductPrice(p.getPrice());
+            item.setProductBrand(p.getBrand());
+            item.setProductImageUrl(p.getImageUrl());
+            item.setCategoryName(p.getCategoryName());
+            list.add(item);
+        }
+        return list;
     }
 }
