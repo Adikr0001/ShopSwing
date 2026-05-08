@@ -66,11 +66,19 @@ public class Order {
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
 
-    /**
-     * Returns formatted total amount string
-     */
     public String getFormattedTotal() {
         return String.format("Rs %,.2f", totalAmount);
+    }
+
+    /**
+     * Returns estimated delivery date (5 days from order creation)
+     */
+    public java.util.Date getEstimatedDeliveryDate() {
+        if (createdAt == null) return new java.util.Date();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTimeInMillis(createdAt.getTime());
+        cal.add(java.util.Calendar.DAY_OF_MONTH, 5);
+        return cal.getTime();
     }
 
     @Override

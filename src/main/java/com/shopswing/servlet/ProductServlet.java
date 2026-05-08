@@ -1,5 +1,6 @@
 package com.shopswing.servlet;
 
+import com.shopswing.dao.CartDAO;
 import com.shopswing.dao.CategoryDAO;
 import com.shopswing.dao.ProductDAO;
 import com.shopswing.model.Category;
@@ -24,6 +25,7 @@ public class ProductServlet extends HttpServlet {
 
     private ProductDAO productDAO = new ProductDAO();
     private CategoryDAO categoryDAO = new CategoryDAO();
+    private CartDAO cartDAO = new CartDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -76,6 +78,14 @@ public class ProductServlet extends HttpServlet {
         request.setAttribute("minPrice", String.format("%,.0f", minPrice));
         request.setAttribute("maxPrice", String.format("%,.0f", maxPrice));
         request.setAttribute("avgPrice", String.format("%,.0f", avgPrice));
+
+        // Add cart count for navbar if user is logged in
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("userId") != null) {
+            int userId = (int) session.getAttribute("userId");
+            int cartCount = cartDAO.getCartCount(userId);
+            request.setAttribute("cartCount", cartCount);
+        }
 
         request.getRequestDispatcher("/WEB-INF/views/products.jsp").forward(request, response);
     }

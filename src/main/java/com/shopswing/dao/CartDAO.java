@@ -6,35 +6,49 @@ import com.shopswing.utils.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Data Access Object for Cart operations.
  */
 public class CartDAO {
-    private static final Map<Integer, Map<Integer, Integer>> FALLBACK_CARTS = new ConcurrentHashMap<>();
-    private final ProductDAO productDAO = new ProductDAO();
 
     /**
      * Adds a product to the user's cart. If already in cart, increments quantity.
      */
     public void addToCart(int userId, int productId) {
-        String sql = "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, 1) " +
-                     "ON DUPLICATE KEY UPDATE quantity = quantity + 1";
         Connection conn = null;
         try {
             conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, userId);
-            ps.setInt(2, productId);
-            ps.executeUpdate();
+            
+            // Check if item already exists in cart
+            String checkSql = "SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?";
+            PreparedStatement checkPs = conn.prepareStatement(checkSql);
+            checkPs.setInt(1, userId);
+            checkPs.setInt(2, productId);
+            ResultSet rs = checkPs.executeQuery();
+            
+            if (rs.next()) {
+                // Update existing quantity
+                int currentQty = rs.getInt("quantity");
+                String updateSql = "UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?";
+                PreparedStatement updatePs = conn.prepareStatement(updateSql);
+                updatePs.setInt(1, currentQty + 1);
+                updatePs.setInt(2, userId);
+                updatePs.setInt(3, productId);
+                updatePs.executeUpdate();
+            } else {
+                // Insert new cart item
+                String insertSql = "INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, 1)";
+                PreparedStatement insertPs = conn.prepareStatement(insertSql);
+                insertPs.setInt(1, userId);
+                insertPs.setInt(2, productId);
+                insertPs.executeUpdate();
+            }
+            System.out.println("Added to cart: userId=" + userId + ", productId=" + productId);
         } catch (SQLException e) {
+            System.err.println("Failed to add to cart: userId=" + userId + ", productId=" + productId);
             e.printStackTrace();
-            Map<Integer, Integer> userCart = FALLBACK_CARTS.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
-            userCart.merge(productId, 1, Integer::sum);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -59,9 +73,8 @@ public class CartDAO {
             ps.setInt(3, productId);
             ps.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Failed to update cart quantity");
             e.printStackTrace();
-            Map<Integer, Integer> userCart = FALLBACK_CARTS.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
-            userCart.put(productId, quantity);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -80,11 +93,8 @@ public class CartDAO {
             ps.setInt(2, productId);
             ps.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Failed to remove from cart");
             e.printStackTrace();
-            Map<Integer, Integer> userCart = FALLBACK_CARTS.get(userId);
-            if (userCart != null) {
-                userCart.remove(productId);
-            }
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -123,12 +133,12 @@ public class CartDAO {
                 list.add(item);
             }
         } catch (SQLException e) {
+            System.err.println("Failed to get cart items for userId: " + userId);
             e.printStackTrace();
         } finally {
             DBConnection.closeConnection(conn);
         }
-        if (!list.isEmpty()) return list;
-        return getFallbackCartItems(userId);
+        return list;
     }
 
     /**
@@ -144,16 +154,12 @@ public class CartDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
         } catch (SQLException e) {
+            System.err.println("Failed to get cart count for userId: " + userId);
             e.printStackTrace();
         } finally {
             DBConnection.closeConnection(conn);
         }
-        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
-        int total = 0;
-        for (Integer qty : userCart.values()) {
-            total += qty;
-        }
-        return total;
+        return 0;
     }
 
     /**
@@ -168,8 +174,8 @@ public class CartDAO {
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
+            System.err.println("Failed to clear cart for userId: " + userId);
             e.printStackTrace();
-            FALLBACK_CARTS.remove(userId);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -190,33 +196,11 @@ public class CartDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt("quantity");
         } catch (SQLException e) {
+            System.err.println("Failed to get item quantity");
             e.printStackTrace();
         } finally {
             DBConnection.closeConnection(conn);
         }
-        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
-        return userCart.getOrDefault(productId, 0);
-    }
-
-    private List<CartItem> getFallbackCartItems(int userId) {
-        List<CartItem> list = new ArrayList<>();
-        Map<Integer, Integer> userCart = FALLBACK_CARTS.getOrDefault(userId, Collections.emptyMap());
-        for (Map.Entry<Integer, Integer> entry : userCart.entrySet()) {
-            Product p = productDAO.getProductById(entry.getKey());
-            if (p == null) continue;
-            CartItem item = new CartItem();
-            item.setId(0);
-            item.setUserId(userId);
-            item.setProductId(p.getId());
-            item.setQuantity(entry.getValue());
-            item.setAddedAt(new Timestamp(System.currentTimeMillis()));
-            item.setProductName(p.getName());
-            item.setProductPrice(p.getPrice());
-            item.setProductBrand(p.getBrand());
-            item.setProductImageUrl(p.getImageUrl());
-            item.setCategoryName(p.getCategoryName());
-            list.add(item);
-        }
-        return list;
+        return 0;
     }
 }

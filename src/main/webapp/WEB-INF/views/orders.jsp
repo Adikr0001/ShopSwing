@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setTimeZone value="Asia/Kolkata"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +16,12 @@
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/products">Products</a>
             <span class="nav-separator">|</span>
-            <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;">Cart</a>
+            <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;position:relative;">
+                &#128722; Cart
+                <c:if test="${cartCount > 0}">
+                    <span style="position:absolute;top:-8px;right:-12px;background:#ef4444;color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50%;min-width:16px;text-align:center;">${cartCount}</span>
+                </c:if>
+            </a>
             <span class="nav-separator">|</span>
             <a href="${pageContext.request.contextPath}/orders" class="active" style="color:#34D399;">Orders</a>
             <span class="nav-separator">|</span>
@@ -67,8 +73,16 @@
                                             ${o.status}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td style="display:flex;gap:0.4rem;">
                                         <a href="${pageContext.request.contextPath}/order-detail?id=${o.id}" class="btn btn-dark btn-sm">View</a>
+                                        <c:if test="${o.status == 'Placed' || o.status == 'Processing'}">
+                                            <form action="${pageContext.request.contextPath}/order-detail" method="POST" style="margin:0;">
+                                                <input type="hidden" name="action" value="cancel">
+                                                <input type="hidden" name="orderId" value="${o.id}">
+                                                <button type="submit" class="btn btn-sm" style="background:var(--red);color:white;"
+                                                        onclick="return confirm('Cancel order #${o.id}?');">Cancel</button>
+                                            </form>
+                                        </c:if>
                                     </td>
                                 </tr>
                             </c:forEach>

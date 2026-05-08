@@ -4,19 +4,12 @@ import com.shopswing.model.User;
 import com.shopswing.utils.DBConnection;
 
 import java.sql.*;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Data Access Object for User operations.
  * All methods use PreparedStatement to prevent SQL injection.
  */
 public class UserDAO {
-    private static final Map<Integer, User> FALLBACK_USERS_BY_ID = new ConcurrentHashMap<>();
-    private static final Map<String, Integer> FALLBACK_USER_ID_BY_USERNAME = new ConcurrentHashMap<>();
-    private static final Map<String, Integer> FALLBACK_USER_ID_BY_EMAIL = new ConcurrentHashMap<>();
-    private static final AtomicInteger FALLBACK_ID_SEQUENCE = new AtomicInteger(10000);
 
     /**
      * Registers a new user in the database.
@@ -41,12 +34,14 @@ public class UserDAO {
             if (rows > 0) {
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt(1);
+                    int userId = rs.getInt(1);
+                    System.out.println("User registered successfully: " + user.getUsername() + " (ID: " + userId + ")");
+                    return userId;
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Failed to register user: " + user.getUsername());
             e.printStackTrace();
-            return registerFallbackUser(user);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -71,17 +66,15 @@ public class UserDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return extractUser(rs);
+                User user = extractUser(rs);
+                System.out.println("User logged in successfully: " + username);
+                return user;
+            } else {
+                System.out.println("Login failed for username: " + username + " (user not found or wrong password)");
             }
         } catch (SQLException e) {
+            System.err.println("Database error during login for: " + username);
             e.printStackTrace();
-            Integer id = FALLBACK_USER_ID_BY_USERNAME.get(normalize(username));
-            if (id != null) {
-                User stored = FALLBACK_USERS_BY_ID.get(id);
-                if (stored != null && stored.getPasswordHash().equals(passwordHash)) {
-                    return copyUser(stored);
-                }
-            }
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -103,9 +96,8 @@ public class UserDAO {
                 return extractUser(rs);
             }
         } catch (SQLException e) {
+            System.err.println("Database error getting user by ID: " + id);
             e.printStackTrace();
-            User fallback = FALLBACK_USERS_BY_ID.get(id);
-            if (fallback != null) return copyUser(fallback);
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -124,8 +116,9 @@ public class UserDAO {
             ps.setString(1, username);
             return ps.executeQuery().next();
         } catch (SQLException e) {
+            System.err.println("Database error checking username: " + username);
             e.printStackTrace();
-            return FALLBACK_USER_ID_BY_USERNAME.containsKey(normalize(username));
+            return false;
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -143,8 +136,9 @@ public class UserDAO {
             ps.setString(1, email);
             return ps.executeQuery().next();
         } catch (SQLException e) {
+            System.err.println("Database error checking email: " + email);
             e.printStackTrace();
-            return FALLBACK_USER_ID_BY_EMAIL.containsKey(normalize(email));
+            return false;
         } finally {
             DBConnection.closeConnection(conn);
         }
@@ -163,41 +157,6 @@ public class UserDAO {
         user.setPhone(rs.getString("phone"));
         user.setAddress(rs.getString("address"));
         user.setCreatedAt(rs.getTimestamp("created_at"));
-        return user;
-    }
-
-    private int registerFallbackUser(User user) {
-        String usernameKey = normalize(user.getUsername());
-        String emailKey = normalize(user.getEmail());
-        if (FALLBACK_USER_ID_BY_USERNAME.containsKey(usernameKey) || FALLBACK_USER_ID_BY_EMAIL.containsKey(emailKey)) {
-            return -1;
-        }
-
-        int id = FALLBACK_ID_SEQUENCE.incrementAndGet();
-        User stored = copyUser(user);
-        stored.setId(id);
-        stored.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
-        FALLBACK_USERS_BY_ID.put(id, stored);
-        FALLBACK_USER_ID_BY_USERNAME.put(usernameKey, id);
-        FALLBACK_USER_ID_BY_EMAIL.put(emailKey, id);
-        return id;
-    }
-
-    private static String normalize(String value) {
-        return value == null ? "" : value.trim().toLowerCase();
-    }
-
-    private static User copyUser(User source) {
-        User user = new User();
-        user.setId(source.getId());
-        user.setUsername(source.getUsername());
-        user.setEmail(source.getEmail());
-        user.setPasswordHash(source.getPasswordHash());
-        user.setFullName(source.getFullName());
-        user.setPhone(source.getPhone());
-        user.setAddress(source.getAddress());
-        user.setCreatedAt(source.getCreatedAt());
         return user;
     }
 }

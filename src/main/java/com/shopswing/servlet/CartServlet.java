@@ -74,6 +74,7 @@ public class CartServlet extends HttpServlet {
             switch (action) {
                 case "add":
                     cartDAO.addToCart(userId, productId);
+                    session.setAttribute("addedToCart", true);
                     // Redirect back to referring page or products
                     String referer = request.getHeader("Referer");
                     if (referer != null && !referer.isEmpty()) {

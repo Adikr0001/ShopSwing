@@ -69,9 +69,11 @@ public class OrderDAO {
             ps3.executeUpdate();
 
             conn.commit();
+            System.out.println("Order #" + orderId + " placed successfully for userId: " + userId + ", total: " + total);
             return orderId;
 
         } catch (SQLException e) {
+            System.err.println("Failed to place order for userId: " + userId);
             e.printStackTrace();
             if (conn != null) {
                 try { conn.rollback(); } catch (SQLException ignored) {}
@@ -176,5 +178,31 @@ public class OrderDAO {
         o.setPaymentMethod(rs.getString("payment_method"));
         o.setCreatedAt(rs.getTimestamp("created_at"));
         return o;
+    }
+
+    /**
+     * Cancels an order if it's in a cancellable state (Placed or Processing).
+     * @return true if cancelled successfully, false otherwise
+     */
+    public boolean cancelOrder(int orderId, int userId) {
+        String sql = "UPDATE orders SET status = 'Cancelled' WHERE id = ? AND user_id = ? AND status IN ('Placed', 'Processing')";
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, userId);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Order #" + orderId + " cancelled successfully");
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to cancel order #" + orderId);
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeConnection(conn);
+        }
+        return false;
     }
 }

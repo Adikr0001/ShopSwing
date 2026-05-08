@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +11,21 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
+    <c:if test="${sessionScope.addedToCart}">
+        <div id="cartToast" style="position:fixed; bottom:20px; right:20px; background:var(--green); color:#1e293b; padding:1rem 2rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:1000; font-weight:700; display:flex; align-items:center; gap:0.5rem; transition: opacity 0.5s ease-in-out;">
+            <span style="font-size:1.2rem;color:#1e293b;">&#10004;</span> Added to cart successfully!
+        </div>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('cartToast');
+                if(toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 3000);
+        </script>
+        <c:remove var="addedToCart" scope="session" />
+    </c:if>
 
     <!-- Navbar -->
     <nav class="navbar">
@@ -18,7 +34,12 @@
             <a href="${pageContext.request.contextPath}/products">Products</a>
             <span class="nav-separator">|</span>
             <c:if test="${not empty sessionScope.user}">
-                <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;">Cart</a>
+                <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;position:relative;">
+                    &#128722; Cart
+                    <c:if test="${cartCount > 0}">
+                        <span style="position:absolute;top:-8px;right:-12px;background:#ef4444;color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50%;min-width:16px;text-align:center;">${cartCount}</span>
+                    </c:if>
+                </a>
                 <span class="nav-separator">|</span>
                 <a href="${pageContext.request.contextPath}/orders" style="color:#34D399;">Orders</a>
                 <span class="nav-separator">|</span>
@@ -43,9 +64,9 @@
         <div class="fade-in" style="display:grid; grid-template-columns: 300px 1fr; gap:1.5rem;">
             <!-- Left: Product Image Area -->
             <div class="product-image-large">
-                <img src="${pageContext.request.contextPath}/${product.imageUrl}" 
+                <img src="${fn:startsWith(product.imageUrl, 'http') ? product.imageUrl : pageContext.request.contextPath.concat('/').concat(product.imageUrl)}"
                      alt="${product.name}"
-                     onerror="this.src='https://placehold.co/600x600/1e293b/white?text=${product.name}';">
+                     onerror="this.onerror=null; this.src='${product.categoryName == 'Electronics' ? 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&amp;fit=crop&amp;w=900&amp;q=80' : product.categoryName == 'Clothing' ? 'https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&amp;fit=crop&amp;w=900&amp;q=80' : product.categoryName == 'Books' ? 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&amp;fit=crop&amp;w=900&amp;q=80' : product.categoryName == 'Sports' ? 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&amp;fit=crop&amp;w=900&amp;q=80' : product.categoryName == 'Beauty' ? 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&amp;fit=crop&amp;w=900&amp;q=80' : 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&amp;fit=crop&amp;w=900&amp;q=80'}';">
             </div>
 
             <!-- Right: Product details -->
@@ -124,7 +145,10 @@
                             <a href="${pageContext.request.contextPath}/login" class="btn btn-primary btn-lg">Login to Buy</a>
                         </c:otherwise>
                     </c:choose>
-                    <a href="${pageContext.request.contextPath}/products?category=${product.categoryName}" class="btn btn-outline btn-lg">
+                    <c:url var="productCategoryUrl" value="/products">
+                        <c:param name="category" value="${product.categoryName}" />
+                    </c:url>
+                    <a href="${productCategoryUrl}" class="btn btn-outline btn-lg">
                         More in ${product.categoryName}
                     </a>
                 </div>

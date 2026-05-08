@@ -11,6 +11,21 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 </head>
 <body>
+    <c:if test="${sessionScope.addedToCart}">
+        <div id="cartToast" style="position:fixed; bottom:20px; right:20px; background:var(--green); color:#1e293b; padding:1rem 2rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:1000; font-weight:700; display:flex; align-items:center; gap:0.5rem; transition: opacity 0.5s ease-in-out;">
+            <span style="font-size:1.2rem;color:#1e293b;">&#10004;</span> Added to cart successfully!
+        </div>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('cartToast');
+                if(toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 3000);
+        </script>
+        <c:remove var="addedToCart" scope="session" />
+    </c:if>
 
     <!-- Navbar -->
     <nav class="navbar">
@@ -30,7 +45,12 @@
                 <c:when test="${not empty sessionScope.user}">
                     <a href="${pageContext.request.contextPath}/products" class="active">Products</a>
                     <span class="nav-separator">|</span>
-                    <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;">Cart</a>
+                    <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;position:relative;">
+                        &#128722; Cart
+                        <c:if test="${cartCount > 0}">
+                            <span style="position:absolute;top:-8px;right:-12px;background:#ef4444;color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50%;min-width:16px;text-align:center;">${cartCount}</span>
+                        </c:if>
+                    </a>
                     <span class="nav-separator">|</span>
                     <a href="${pageContext.request.contextPath}/orders" style="color:#34D399;">Orders</a>
                     <span class="nav-separator">|</span>
@@ -53,20 +73,59 @@
             <a href="${pageContext.request.contextPath}/products"
                class="sidebar-link ${empty selectedCategory ? 'active' : ''}">All Products</a>
             <c:forEach var="cat" items="${categories}">
-                <a href="${pageContext.request.contextPath}/products?category=${cat.name}"
+                <c:url var="categoryUrl" value="/products">
+                    <c:param name="category" value="${cat.name}" />
+                </c:url>
+                <a href="${categoryUrl}"
                    class="sidebar-link ${selectedCategory == cat.name ? 'active' : ''}">${cat.name}</a>
             </c:forEach>
 
             <div class="sidebar-header" style="margin-top:1.5rem;">SORT BY PRICE</div>
-            <a href="${pageContext.request.contextPath}/products?sort=price_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
+            <c:url var="priceAscUrl" value="/products">
+                <c:param name="sort" value="price_asc" />
+                <c:if test="${not empty selectedCategory}">
+                    <c:param name="category" value="${selectedCategory}" />
+                </c:if>
+                <c:if test="${not empty searchQuery}">
+                    <c:param name="search" value="${searchQuery}" />
+                </c:if>
+            </c:url>
+            <a href="${priceAscUrl}"
                class="sidebar-link">Cheapest First</a>
-            <a href="${pageContext.request.contextPath}/products?sort=price_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
+            <c:url var="priceDescUrl" value="/products">
+                <c:param name="sort" value="price_desc" />
+                <c:if test="${not empty selectedCategory}">
+                    <c:param name="category" value="${selectedCategory}" />
+                </c:if>
+                <c:if test="${not empty searchQuery}">
+                    <c:param name="search" value="${searchQuery}" />
+                </c:if>
+            </c:url>
+            <a href="${priceDescUrl}"
                class="sidebar-link">Premium First</a>
 
             <div class="sidebar-header" style="margin-top:1.5rem;">SORT BY NAME</div>
-            <a href="${pageContext.request.contextPath}/products?sort=name_asc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
+            <c:url var="nameAscUrl" value="/products">
+                <c:param name="sort" value="name_asc" />
+                <c:if test="${not empty selectedCategory}">
+                    <c:param name="category" value="${selectedCategory}" />
+                </c:if>
+                <c:if test="${not empty searchQuery}">
+                    <c:param name="search" value="${searchQuery}" />
+                </c:if>
+            </c:url>
+            <a href="${nameAscUrl}"
                class="sidebar-link">Name A → Z</a>
-            <a href="${pageContext.request.contextPath}/products?sort=name_desc${not empty selectedCategory ? '&category='.concat(selectedCategory) : ''}${not empty searchQuery ? '&search='.concat(searchQuery) : ''}"
+            <c:url var="nameDescUrl" value="/products">
+                <c:param name="sort" value="name_desc" />
+                <c:if test="${not empty selectedCategory}">
+                    <c:param name="category" value="${selectedCategory}" />
+                </c:if>
+                <c:if test="${not empty searchQuery}">
+                    <c:param name="search" value="${searchQuery}" />
+                </c:if>
+            </c:url>
+            <a href="${nameDescUrl}"
                class="sidebar-link">Name Z → A</a>
 
             <!-- Stats Card -->
@@ -109,7 +168,12 @@
                     <c:otherwise>
                         <div class="product-grid">
                             <c:forEach var="p" items="${products}">
-                                <div class="card product-card fade-in">
+                                <div class="card product-card fade-in"
+                                     data-product-url="${pageContext.request.contextPath}/product-detail?id=${p.id}"
+                                     role="link"
+                                     tabindex="0"
+                                     aria-label="View details for ${p.name}"
+                                     style="cursor:pointer;">
                                     <!-- Top: Category pill -->
                                     <div style="padding:0.7rem 1rem 0; display:flex; justify-content:space-between; align-items:center;">
                                         <span class="pill pill-${p.categoryName == 'Electronics' ? 'electronics' : p.categoryName == 'Clothing' ? 'clothing' : p.categoryName == 'Books' ? 'books' : p.categoryName == 'Sports' ? 'sports' : p.categoryName == 'Beauty' ? 'beauty' : 'home'}">
@@ -120,9 +184,9 @@
 
                                     <!-- Product Image -->
                                     <div class="product-image-container">
-                                        <img src="${fn:startsWith(p.imageUrl, 'http') ? p.imageUrl : pageContext.request.contextPath.concat('/').concat(p.imageUrl)}" 
-                                             alt="${p.name}" 
-                                             onerror="this.src='https://placehold.co/400x300/1e293b/white?text=${p.name}';">
+                                        <img src="${fn:startsWith(p.imageUrl, 'http') ? p.imageUrl : pageContext.request.contextPath.concat('/').concat(p.imageUrl)}"
+                                             alt="${p.name}"
+                                             onerror="this.onerror=null; this.src='${p.categoryName == 'Electronics' ? 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&amp;fit=crop&amp;w=700&amp;q=80' : p.categoryName == 'Clothing' ? 'https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&amp;fit=crop&amp;w=700&amp;q=80' : p.categoryName == 'Books' ? 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&amp;fit=crop&amp;w=700&amp;q=80' : p.categoryName == 'Sports' ? 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&amp;fit=crop&amp;w=700&amp;q=80' : p.categoryName == 'Beauty' ? 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&amp;fit=crop&amp;w=700&amp;q=80' : 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&amp;fit=crop&amp;w=700&amp;q=80'}';">
                                     </div>
 
                                     <!-- Info -->
@@ -174,6 +238,27 @@
         </div>
     </div>
 
+    <script>
+        document.querySelectorAll('.product-card[data-product-url]').forEach(card => {
+            const navigateToProduct = () => {
+                window.location.href = card.dataset.productUrl;
+            };
+
+            card.addEventListener('click', event => {
+                if (event.target.closest('a, button, form, input, select, textarea, label')) {
+                    return;
+                }
+                navigateToProduct();
+            });
+
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    navigateToProduct();
+                }
+            });
+        });
+    </script>
     <script src="${pageContext.request.contextPath}/js/main.js"></script>
 </body>
 </html>

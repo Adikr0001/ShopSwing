@@ -54,10 +54,10 @@
                             <div class="card fade-in" style="display:flex; align-items:center; padding:1rem 1.2rem; margin-bottom:0.6rem;">
                                 <!-- Product Image -->
                                 <div style="width:60px;height:60px;margin-right:1rem;flex-shrink:0;">
-                                    <img src="${fn:startsWith(item.productImageUrl, 'http') ? item.productImageUrl : pageContext.request.contextPath.concat('/').concat(item.productImageUrl)}" 
+                                    <img src="${fn:startsWith(item.productImageUrl, 'http') ? item.productImageUrl : pageContext.request.contextPath.concat('/').concat(item.productImageUrl)}"
                                          alt="${item.productName}"
                                          style="width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid var(--border);"
-                                         onerror="this.src='https://placehold.co/100x100/1e293b/white?text=${item.productName}';">
+                                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&amp;fit=crop&amp;w=240&amp;q=80';">
                                 </div>
 
                                 <!-- Product info -->

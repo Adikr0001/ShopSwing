@@ -14,30 +14,30 @@ import java.sql.SQLException;
  */
 public class DBConnection {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/shopswing_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "root";
+    private static final String DB_URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/shopswing.db";
+    private static final String DB_USER = "";
+    private static final String DB_PASSWORD = "";
 
-    // Load MySQL JDBC driver once at class load time
+    // Load SQLite JDBC driver once at class load time
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            System.err.println("MySQL JDBC Driver not found!");
+            System.err.println("SQLite JDBC Driver not found!");
             e.printStackTrace();
-            throw new RuntimeException("MySQL JDBC Driver not found", e);
+            throw new RuntimeException("SQLite JDBC Driver not found", e);
         }
     }
 
     /**
-     * Returns a new connection to the MySQL database.
+     * Returns a new connection to the SQLite database.
      * Caller is responsible for closing the connection.
      * 
      * @return Connection object
      * @throws SQLException if connection fails
      */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        return DriverManager.getConnection(DB_URL);
     }
 
     /**
@@ -62,17 +62,12 @@ public class DBConnection {
     public static void main(String[] args) {
         try (Connection conn = getConnection()) {
             if (conn != null && !conn.isClosed()) {
-                System.out.println("SUCCESS: Connected to shopswing_db database!");
-                System.out.println("Database: " + conn.getCatalog());
+                System.out.println("SUCCESS: Connected to shopswing.db database!");
                 System.out.println("URL: " + DB_URL);
             }
         } catch (SQLException e) {
             System.err.println("FAILED: Could not connect to database.");
             System.err.println("Error: " + e.getMessage());
-            System.err.println("\nMake sure:");
-            System.err.println("  1. MySQL is running on localhost:3306");
-            System.err.println("  2. Database 'shopswing_db' exists");
-            System.err.println("  3. User/password are correct (default: root/root)");
         }
     }
 }

@@ -64,37 +64,37 @@
             <a href="${pageContext.request.contextPath}/products?category=Electronics" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#128241;</div>
                 <div style="font-weight: 700; color: var(--text);">Electronics</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">10 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">16 products</div>
             </a>
 
             <a href="${pageContext.request.contextPath}/products?category=Clothing" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#128085;</div>
                 <div style="font-weight: 700; color: var(--text);">Clothing</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">4 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">15 products</div>
             </a>
 
             <a href="${pageContext.request.contextPath}/products?category=Books" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#128218;</div>
                 <div style="font-weight: 700; color: var(--text);">Books</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">4 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">15 products</div>
             </a>
 
-            <a href="${pageContext.request.contextPath}/products?category=Home" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
+            <a href="${pageContext.request.contextPath}/products?category=Home%20%26%20Garden" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#127968;</div>
                 <div style="font-weight: 700; color: var(--text);">Home & Garden</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">2 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">15 products</div>
             </a>
 
             <a href="${pageContext.request.contextPath}/products?category=Sports" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#127947;</div>
                 <div style="font-weight: 700; color: var(--text);">Sports</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">3 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">15 products</div>
             </a>
 
             <a href="${pageContext.request.contextPath}/products?category=Beauty" class="card" style="text-decoration:none; text-align:center; padding: 1.5rem 1rem;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#128132;</div>
                 <div style="font-weight: 700; color: var(--text);">Beauty</div>
-                <div style="font-size: 0.8rem; color: var(--subtext);">2 products</div>
+                <div style="font-size: 0.8rem; color: var(--subtext);">15 products</div>
             </a>
 
         </div>

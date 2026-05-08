@@ -15,7 +15,12 @@
         <div class="nav-links">
             <a href="${pageContext.request.contextPath}/products">Products</a>
             <span class="nav-separator">|</span>
-            <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;">Cart</a>
+            <a href="${pageContext.request.contextPath}/cart" style="color:#FBBF24;position:relative;">
+                    &#128722; Cart
+                    <c:if test="${cartCount > 0}">
+                        <span style="position:absolute;top:-8px;right:-12px;background:#ef4444;color:white;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:50%;min-width:16px;text-align:center;">${cartCount}</span>
+                    </c:if>
+                </a>
             <span class="nav-separator">|</span>
             <a href="#" style="color:#B4D4FF;">Hi, ${sessionScope.user.username}</a>
             <span class="nav-separator">|</span>
