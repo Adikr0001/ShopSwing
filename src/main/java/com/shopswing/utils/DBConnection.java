@@ -11,14 +11,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * JDBC connections for local SQLite or hosted PostgreSQL (e.g. Render {@code DATABASE_URL}).
+ * JDBC connections: SQLite (default) or optional PostgreSQL when {@code DATABASE_URL} is used.
  *
- * <p>Priority: {@code -Dshopswing.sqlite.path=} (SQLite file) &rarr;
- * {@code JDBC_DATABASE_URL} &rarr; {@code DATABASE_URL} (postgres) &rarr;
- * default SQLite file {@code shopswing.db} in the Maven project directory (path is baked
- * in at {@code mvn package} time via {@code shopswing-db.properties}, so it matches the
- * file in your repo regardless of {@code user.dir}). Fallback: {@code user.dir/shopswing.db}.
- * Override anytime: {@code -Dshopswing.sqlite.path=C:/path/to/shopswing.db}.
+ * <p><b>SQLite-only on Render:</b> set environment {@code SHOPSWING_USE_SQLITE_ONLY=true} (or {@code 1})
+ * so {@code DATABASE_URL} / {@code JDBC_DATABASE_URL} are ignored. Optionally set
+ * {@code SHOPSWING_SQLITE_PATH=/absolute/path/shopswing.db} (e.g. on a persistent disk).
+ *
+ * <p>Priority: {@code -Dshopswing.sqlite.path=} &rarr; {@code SHOPSWING_SQLITE_PATH} &rarr;
+ * (unless SQLite-only) {@code JDBC_DATABASE_URL} &rarr; {@code DATABASE_URL} (postgres) &rarr;
+ * packaged {@code shopswing-db.properties} &rarr; {@code user.dir/shopswing.db}.
  */
 public class DBConnection {
 
@@ -30,6 +31,16 @@ public class DBConnection {
         return v == null ? "" : v;
     }
 
+    /** When true, never use {@code DATABASE_URL} / {@code JDBC_DATABASE_URL} (Postgres). */
+    private static boolean isSqliteOnlyMode() {
+        String e = getenv("SHOPSWING_USE_SQLITE_ONLY").trim();
+        if ("1".equals(e) || "true".equalsIgnoreCase(e) || "yes".equalsIgnoreCase(e)) {
+            return true;
+        }
+        String p = System.getProperty("shopswing.use.sqlite.only", "").trim();
+        return "1".equals(p) || "true".equalsIgnoreCase(p);
+    }
+
     private static String buildJdbcUrl() {
         String override = System.getProperty("shopswing.sqlite.path", "").trim();
         if (!override.isEmpty()) {
@@ -39,15 +50,22 @@ public class DBConnection {
             return "jdbc:sqlite:" + override.replace('\\', '/');
         }
 
-        String jdbcFromEnv = getenv("JDBC_DATABASE_URL").trim();
-        if (!jdbcFromEnv.isEmpty()) {
-            return jdbcFromEnv;
+        String sqlitePathEnv = getenv("SHOPSWING_SQLITE_PATH").trim();
+        if (!sqlitePathEnv.isEmpty()) {
+            return "jdbc:sqlite:" + new File(sqlitePathEnv).getAbsolutePath().replace('\\', '/');
         }
 
-        String databaseUrl = getenv("DATABASE_URL").trim();
-        if (!databaseUrl.isEmpty()
-                && (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://"))) {
-            return convertRenderPostgresUrlToJdbc(databaseUrl);
+        if (!isSqliteOnlyMode()) {
+            String jdbcFromEnv = getenv("JDBC_DATABASE_URL").trim();
+            if (!jdbcFromEnv.isEmpty()) {
+                return jdbcFromEnv;
+            }
+
+            String databaseUrl = getenv("DATABASE_URL").trim();
+            if (!databaseUrl.isEmpty()
+                    && (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://"))) {
+                return convertRenderPostgresUrlToJdbc(databaseUrl);
+            }
         }
 
         String projectDb = readPackagedSqliteAbsolutePath();
