@@ -1,5 +1,6 @@
 package com.shopswing.servlet;
 
+import com.shopswing.utils.DBConnection;
 import com.shopswing.utils.InitDB;
 import com.shopswing.utils.PopulateDB;
 
@@ -13,11 +14,13 @@ public class AppContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         System.out.println("ShopSwing Application is starting up...");
+        System.out.println("Database JDBC URL (masked): " + DBConnection.getJdbcUrlForLogs());
+        System.out.println("Database file / host info: " + DBConnection.getSqliteFilePath());
         try {
-            System.out.println("Initializing SQLite database tables...");
+            System.out.println("Initializing database tables...");
             InitDB.initTables();
             
-            System.out.println("Populating SQLite database with default data...");
+            System.out.println("Populating database with default catalog data...");
             PopulateDB.main(new String[]{});
             
             System.out.println("Database setup complete!");
