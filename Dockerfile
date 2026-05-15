@@ -4,6 +4,10 @@ COPY . .
 RUN mvn clean package
 
 FROM tomcat:9.0
+COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
+
+EXPOSE 8080
+FROM tomcat:9.0
 RUN rm -rf /usr/local/tomcat/webapps/* \
     && mkdir -p /usr/local/tomcat/data
 COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
